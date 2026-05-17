@@ -432,7 +432,7 @@
   </div>
 
   <!-- ADMIN PANEL -->
-  <div id="admin-panel">
+  <div id="admin-panel" style="display:none;">
     <div class="admin-title">⬡ Admiral Review Panel</div>
     <div class="admin-sub">All exam submissions. Review answers and approve or reject promotion to Trainee.</div>
     <div class="admin-login" id="admin-login-form">
@@ -1142,12 +1142,8 @@ RHL-ACM-2956-001</div></div>
 }
 
 
-// ── SHOW ADMIN PANEL IF CAPTAINRAM ──
+// ── SHOW ADMIN PANEL ONLY IF ?admin IN URL ──
 window.addEventListener('load', () => {
-  const cs = localStorage.getItem('ram_callsign');
-  if (cs === 'CAPTAINRAM') {
-    document.getElementById('admin-panel').style.display = 'block';
-  }
   if (window.location.search.includes('admin')) {
     document.getElementById('admin-panel').style.display = 'block';
   }
