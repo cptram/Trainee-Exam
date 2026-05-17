@@ -3,6 +3,14 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="robots" content="noindex, nofollow"/>
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"/>
+<meta http-equiv="Pragma" content="no-cache"/>
+<meta http-equiv="Expires" content="0"/>
+<!-- Prevent Discord embed -->
+<meta property="og:title" content="RAM Space Industries — Academy"/>
+<meta property="og:description" content="Second Fleet Academy Exam System — Login Required"/>
+<meta name="twitter:card" content="summary"/>
 <title>RAM Space Industries — Academy Exam // Recruit → Trainee</title>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet"/>
 <style>
@@ -431,16 +439,8 @@
     </div>
   </div>
 
-  <!-- ADMIN PANEL -->
-  <div id="admin-panel" style="display:none;">
-    <div class="admin-title">⬡ Admiral Review Panel</div>
-    <div class="admin-sub">All exam submissions. Review answers and approve or reject promotion to Trainee.</div>
-    <div class="admin-login" id="admin-login-form">
-      <input class="inp" id="admin-pass" type="password" placeholder="Admin password..." style="max-width:300px;text-transform:none;"/>
-      <button class="btn-admin-login" onclick="adminLogin()">Unlock Panel</button>
-    </div>
-    <div id="admin-submissions"></div>
-  </div>
+  <!-- ADMIN PANEL — injected by JS only when ?admin is in URL -->
+  <div id="admin-panel-wrap"></div>
 
 </div>
 
@@ -1145,7 +1145,19 @@ RHL-ACM-2956-001</div></div>
 // ── SHOW ADMIN PANEL ONLY IF ?admin IN URL ──
 window.addEventListener('load', () => {
   if (window.location.search.includes('admin')) {
-    document.getElementById('admin-panel').style.display = 'block';
+    const wrap = document.getElementById('admin-panel-wrap');
+    if (wrap) {
+      wrap.innerHTML = `
+        <div id="admin-panel" style="margin-top:60px;background:#060c18;border:1px solid rgba(232,64,64,0.2);padding:32px;">
+          <div class="admin-title">⬡ Admiral Review Panel</div>
+          <div class="admin-sub">All exam submissions. Review answers and approve or reject promotion to Trainee.</div>
+          <div class="admin-login" id="admin-login-form" style="margin-bottom:20px;display:flex;gap:10px;">
+            <input class="inp" id="admin-pass" type="password" placeholder="Admin password..." style="max-width:300px;text-transform:none;"/>
+            <button class="btn-admin-login" onclick="adminLogin()">Unlock Panel</button>
+          </div>
+          <div id="admin-submissions"></div>
+        </div>`;
+    }
   }
 });
 </script>
