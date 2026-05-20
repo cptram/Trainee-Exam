@@ -439,8 +439,16 @@
     </div>
   </div>
 
-  <!-- ADMIN PANEL — injected by JS only when ?admin is in URL -->
-  <div id="admin-panel-wrap"></div>
+  <!-- ADMIN PANEL — hidden by default, shown via JS when ?admin in URL -->
+  <div id="admin-panel-wrap" style="display:none;margin-top:60px;background:#060c18;border:1px solid rgba(232,64,64,0.2);padding:32px;">
+    <div class="admin-title">⬡ Admiral Review Panel</div>
+    <div class="admin-sub">All exam submissions. Review answers and approve or reject promotion to Trainee.</div>
+    <div id="admin-login-form" style="margin-bottom:20px;display:flex;gap:10px;flex-wrap:wrap;">
+      <input class="inp" id="admin-pass" type="password" placeholder="Admin password..." style="max-width:300px;text-transform:none;"/>
+      <button class="btn-admin-login" onclick="adminLogin()">Unlock Panel</button>
+    </div>
+    <div id="admin-submissions"></div>
+  </div>
 
 </div>
 
@@ -943,23 +951,25 @@ async function loadSubmissions() {
 // ── PROMOTE ──
 async function promoteCandidate(docId, cs, mcScore, dateFormatted) {
   if (!confirm('Approve and promote ' + cs + ' to Trainee?')) return;
+  // Open popup BEFORE await — browsers block popups opened after async calls
+  showReportCard(cs, mcScore, dateFormatted);
   try {
     await fsUpdateDoc('exam_submissions', docId, { promoted: true, status: 'approved' });
     await fsMergeDoc('members', cs, { academyRank: 'Trainee' });
     const card = document.getElementById('card-' + docId);
     if (card) { card.style.transition = 'opacity 0.4s'; card.style.opacity = '0'; setTimeout(() => card.remove(), 400); }
-    showReportCard(cs, mcScore, dateFormatted);
   } catch(err) { alert('Error: ' + err.message); }
 }
 
 // -- REJECT --
 async function rejectCandidate(docId, cs) {
   if (!confirm('Reject ' + cs + "'s submission? They will need to retake the exam.")) return;
+  // Open popup BEFORE await — browsers block popups opened after async calls
+  showFailureMessage(cs);
   try {
     await fsUpdateDoc('exam_submissions', docId, { status: 'rejected' });
     const card = document.getElementById('card-' + docId);
     if (card) { card.style.transition = 'opacity 0.4s'; card.style.opacity = '0'; setTimeout(() => card.remove(), 400); }
-    showFailureMessage(cs);
   } catch(err) { alert('Error: ' + err.message); }
 }
 
@@ -1142,22 +1152,30 @@ RHL-ACM-2956-001</div></div>
 }
 
 
-// ── SHOW ADMIN PANEL ONLY IF ?admin IN URL ──
-window.addEventListener('load', () => {
-  if (window.location.search.includes('admin')) {
-    const wrap = document.getElementById('admin-panel-wrap');
-    if (wrap) {
-      wrap.innerHTML = `
-        <div id="admin-panel" style="margin-top:60px;background:#060c18;border:1px solid rgba(232,64,64,0.2);padding:32px;">
-          <div class="admin-title">⬡ Admiral Review Panel</div>
-          <div class="admin-sub">All exam submissions. Review answers and approve or reject promotion to Trainee.</div>
-          <div class="admin-login" id="admin-login-form" style="margin-bottom:20px;display:flex;gap:10px;">
-            <input class="inp" id="admin-pass" type="password" placeholder="Admin password..." style="max-width:300px;text-transform:none;"/>
-            <button class="btn-admin-login" onclick="adminLogin()">Unlock Panel</button>
-          </div>
-          <div id="admin-submissions"></div>
-        </div>`;
-    }
+// ── ADMIN PANEL ──
+function showAdminPanel() {
+  const wrap = document.getElementById('admin-panel-wrap');
+  if (!wrap) return;
+  wrap.style.display = 'block';
+  setTimeout(() => wrap.scrollIntoView({behavior:'smooth'}), 100);
+}
+
+function checkAdminAccess() {
+  const href = window.location.href;
+  if (href.indexOf('admin') !== -1) {
+    showAdminPanel();
+  }
+}
+
+// Run immediately
+checkAdminAccess();
+window.addEventListener('load', checkAdminAccess);
+window.addEventListener('hashchange', checkAdminAccess);
+
+// Keyboard fallback: Ctrl+Shift+A
+window.addEventListener('keydown', function(e) {
+  if (e.ctrlKey && e.shiftKey && e.key === 'A') {
+    showAdminPanel();
   }
 });
 </script>
